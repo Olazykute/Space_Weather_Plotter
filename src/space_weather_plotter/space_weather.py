@@ -4,7 +4,7 @@ This module fetches and visualizes space weather data from the NASA API.
 It includes functions to fetch data from the NASA API, prepare the data into Polars DataFrames,
 and plot the data using Matplotlib.
 """
-import requests
+import requests #type: ignore
 import matplotlib.pyplot as plt
 import polars as pl
 

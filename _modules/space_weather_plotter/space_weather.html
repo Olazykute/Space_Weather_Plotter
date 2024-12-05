@@ -1,0 +1,289 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>space_weather_plotter.space_weather &mdash; Your Project 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Your Project
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">src</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Your Project</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">space_weather_plotter.space_weather</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for space_weather_plotter.space_weather</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module fetches and visualizes space weather data from the NASA API.</span>
+
+<span class="sd">It includes functions to fetch data from the NASA API, prepare the data into Polars DataFrames,</span>
+<span class="sd">and plot the data using Matplotlib.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">requests</span> <span class="c1">#type: ignore</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">polars</span> <span class="k">as</span> <span class="nn">pl</span>
+
+<span class="c1"># Define constants</span>
+<span class="n">BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.nasa.gov/DONKI/&quot;</span>
+<span class="n">API_KEY</span> <span class="o">=</span> <span class="s2">&quot;DEMO_KEY&quot;</span>  <span class="c1"># Replace with your NASA API key</span>
+
+<span class="c1"># Function to fetch data from NASA API</span>
+<div class="viewcode-block" id="fetch_data">
+<a class="viewcode-back" href="../../space_weather_plotter.space_weather.html#space_weather_plotter.space_weather.fetch_data">[docs]</a>
+<span class="k">def</span> <span class="nf">fetch_data</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fetches data from the NASA API.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        endpoint (str): The API endpoint to fetch data from.</span>
+<span class="sd">        params (dict): The parameters to include in the API request.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict or None: The JSON response from the API if the request is successful, otherwise None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">params</span><span class="p">[</span><span class="s1">&#39;api_key&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">API_KEY</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">BASE_URL</span> <span class="o">+</span> <span class="n">endpoint</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="n">params</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<span class="c1"># Function to prepare a Polars DataFrame</span>
+<div class="viewcode-block" id="prepare_dataframe">
+<a class="viewcode-back" href="../../space_weather_plotter.space_weather.html#space_weather_plotter.space_weather.prepare_dataframe">[docs]</a>
+<span class="k">def</span> <span class="nf">prepare_dataframe</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns_mapping</span><span class="p">,</span> <span class="n">nested_keys</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timestamp_col</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prepares a Polars DataFrame from the input JSON data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (list): The raw JSON data (list of dictionaries).</span>
+<span class="sd">        columns_mapping (dict): A dictionary mapping original JSON keys to desired DataFrame column names.</span>
+<span class="sd">        nested_keys (list, optional): A list of keys to extract from nested JSON objects. Defaults to None.</span>
+<span class="sd">        timestamp_col (str, optional): The column name to parse as a timestamp. Defaults to None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pl.DataFrame: The prepared Polars DataFrame.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">extract_nested</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">nested_keys</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nested_keys</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">entry</span>
+        <span class="k">for</span> <span class="n">nested_key</span><span class="p">,</span> <span class="n">extraction</span> <span class="ow">in</span> <span class="n">nested_keys</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">nested_values</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">nested_key</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nested_values</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">nested_entry</span> <span class="ow">in</span> <span class="n">nested_values</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nested_entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                        <span class="k">for</span> <span class="n">sub_key</span><span class="p">,</span> <span class="n">sub_col</span> <span class="ow">in</span> <span class="n">extraction</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                            <span class="n">entry</span><span class="p">[</span><span class="n">sub_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">nested_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sub_key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">entry</span>
+
+    <span class="n">processed_data</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">extract_nested</span><span class="p">({</span><span class="n">columns_mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">entry</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span> <span class="n">nested_keys</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Create Polars DataFrame</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">processed_data</span><span class="p">)</span>
+
+    <span class="c1"># Convert timestamp column to datetime</span>
+    <span class="k">if</span> <span class="n">timestamp_col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">timestamp_col</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Datetime</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%MZ&quot;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="c1"># Function to plot data using Polars</span>
+<div class="viewcode-block" id="plot_data">
+<a class="viewcode-back" href="../../space_weather_plotter.space_weather.html#space_weather_plotter.space_weather.plot_data">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">x_col</span><span class="p">,</span> <span class="n">y_col</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">x_label</span><span class="p">,</span> <span class="n">y_label</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plots data using Matplotlib.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pl.DataFrame): The Polars DataFrame containing the data to plot.</span>
+<span class="sd">        x_col (str): The column name to use for the x-axis.</span>
+<span class="sd">        y_col (str): The column name to use for the y-axis.</span>
+<span class="sd">        title (str): The title of the plot.</span>
+<span class="sd">        x_label (str): The label for the x-axis.</span>
+<span class="sd">        y_label (str): The label for the y-axis.</span>
+<span class="sd">        kind (str, optional): The type of plot (&#39;line&#39; or &#39;bar&#39;). Defaults to &quot;line&quot;.</span>
+<span class="sd">        color (str, optional): The color of the plot. Defaults to &quot;blue&quot;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No data available for </span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Plot using Matplotlib</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;line&quot;</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">x_col</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="n">y_col</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;bar&quot;</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">x_col</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="n">y_col</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">x_label</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">y_label</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<span class="c1"># Function to fetch and plot data based on user selection</span>
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../space_weather_plotter.space_weather.html#space_weather_plotter.space_weather.main">[docs]</a>
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main function to fetch and plot space weather data.</span>
+
+<span class="sd">    This function fetches current space weather data, including solar flares and geomagnetic storms,</span>
+<span class="sd">    prepares the data into Polars DataFrames, and plots the data using Matplotlib.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        None</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Welcome to the Space Weather Observer&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fetching current space weather data please wait a few seconds...&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Fetch and prepare solar flare data</span>
+    <span class="n">flare_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;startDate&quot;</span><span class="p">:</span> <span class="s2">&quot;2024-01-01&quot;</span><span class="p">,</span> <span class="s2">&quot;endDate&quot;</span><span class="p">:</span> <span class="s2">&quot;2024-11-23&quot;</span><span class="p">}</span>
+    <span class="n">solar_flares</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="s2">&quot;FLR&quot;</span><span class="p">,</span> <span class="n">flare_params</span><span class="p">)</span>
+    <span class="n">flare_columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;beginTime&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;classType&quot;</span><span class="p">:</span> <span class="s2">&quot;intensity&quot;</span><span class="p">}</span>
+    <span class="n">solar_flares_df</span> <span class="o">=</span> <span class="n">prepare_dataframe</span><span class="p">(</span><span class="n">solar_flares</span><span class="p">,</span> <span class="n">flare_columns</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Fetch and prepare geomagnetic storm data</span>
+    <span class="n">storm_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;startDate&quot;</span><span class="p">:</span> <span class="s2">&quot;2024-01-01&quot;</span><span class="p">,</span> <span class="s2">&quot;endDate&quot;</span><span class="p">:</span> <span class="s2">&quot;2024-11-23&quot;</span><span class="p">}</span>
+    <span class="n">geomagnetic_storms</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="s2">&quot;GST&quot;</span><span class="p">,</span> <span class="n">storm_params</span><span class="p">)</span>
+    <span class="n">storm_columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;startTime&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">}</span>
+    <span class="n">storm_nested_col</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;allKpIndex&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;observedTime&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;kpIndex&quot;</span><span class="p">:</span> <span class="s2">&quot;kp_index&quot;</span><span class="p">}}</span>
+    <span class="n">geomagnetic_storms_df</span> <span class="o">=</span> <span class="n">prepare_dataframe</span><span class="p">(</span><span class="n">geomagnetic_storms</span><span class="p">,</span> <span class="n">storm_columns</span><span class="p">,</span> <span class="n">storm_nested_col</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Fetch and prepare solar wind data</span>
+    <span class="n">wind_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;startDate&quot;</span><span class="p">:</span> <span class="s2">&quot;2024-11-22&quot;</span><span class="p">,</span> <span class="s2">&quot;endDate&quot;</span><span class="p">:</span> <span class="s2">&quot;2024-11-23&quot;</span><span class="p">}</span>
+    <span class="n">solar_wind</span> <span class="o">=</span> <span class="n">fetch_data</span><span class="p">(</span><span class="s2">&quot;WSAEnlilSimulations&quot;</span><span class="p">,</span> <span class="n">wind_params</span><span class="p">)</span>
+    <span class="n">wind_columns</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;time21_5&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">}</span>
+    <span class="n">wind_nested_col</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;cmeInputs&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;cmeStartTime&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;speed&quot;</span><span class="p">:</span> <span class="s2">&quot;speed&quot;</span><span class="p">}}</span>
+    <span class="n">solar_wind_df</span> <span class="o">=</span> <span class="n">prepare_dataframe</span><span class="p">(</span><span class="n">solar_wind</span><span class="p">,</span> <span class="n">wind_columns</span><span class="p">,</span> <span class="n">wind_nested_col</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">)</span>
+
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Choose an option to visualize:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;1. Solar Flares&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;2. Geomagnetic Storms&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;3. Solar Wind&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;4. Exit&quot;</span><span class="p">)</span>
+
+        <span class="n">choice</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enter your choice (1-4): &quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span>
+            <span class="n">plot_data</span><span class="p">(</span><span class="n">solar_flares_df</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;intensity&quot;</span><span class="p">,</span> <span class="s2">&quot;Solar Flares&quot;</span><span class="p">,</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Intensity&quot;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;orange&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;2&quot;</span><span class="p">:</span>
+            <span class="n">plot_data</span><span class="p">(</span><span class="n">geomagnetic_storms_df</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;kp_index&quot;</span><span class="p">,</span> <span class="s2">&quot;Geomagnetic Storms&quot;</span><span class="p">,</span> <span class="s2">&quot;Start Time&quot;</span><span class="p">,</span> <span class="s2">&quot;KP Index&quot;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;3&quot;</span><span class="p">:</span>
+            <span class="n">plot_data</span><span class="p">(</span><span class="n">solar_wind_df</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;speed&quot;</span><span class="p">,</span> <span class="s2">&quot;Solar Wind Speeds&quot;</span><span class="p">,</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Speed (km/s)&quot;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;4&quot;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Exiting the program. Goodbye!&quot;</span><span class="p">)</span>
+            <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid choice. Please try again.&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Your Name.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+space\_weather\_plotter.space\_weather module
+=============================================
+
+.. automodule:: space_weather_plotter.space_weather
+   :members:
+   :undoc-members:
+   :show-inheritance:

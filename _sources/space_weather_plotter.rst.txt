@@ -1,0 +1,18 @@
+space\_weather\_plotter package
+===============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   space_weather_plotter.space_weather
+
+Module contents
+---------------
+
+.. automodule:: space_weather_plotter
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,9 +1,10 @@
 [project]
 requires-python = ">=3.11" 
 name = "Space_Weather_Plotter"
-description = "Space weather data plotter from NASA DONKI API"
+description = "Default template for PDM package"
 authors = [
     {name = "Vianney Saadetian", email = "vianneysaadetian@gmail.com"},
+    {name = "Vianney", email = "vianneysaadetian@gmail.com"},
 ]
 version = "0.1.0"
 dependencies = [
@@ -11,6 +12,8 @@ dependencies = [
     "polars>=1.16.0",
     "matplotlib>=3.9.3",
     "requests>=2.32.3",
+    "sphinx>=8.1.3",
+    "sphinx-rtd-theme>=3.0.2",
 ]
 readme = "README.md"
 license = {text = "MIT"}

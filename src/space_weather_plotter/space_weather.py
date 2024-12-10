@@ -62,8 +62,11 @@ def prepare_dataframe(data, columns_mapping, nested_keys=None, timestamp_col=Non
         return entry
 
     processed_data = [
-        extract_nested({columns_mapping.get(k, k): v for k, v in entry.items()}, nested_keys)
-        for entry in data if isinstance(entry, dict)
+        extract_nested(
+            {columns_mapping.get(k, k): v for k, v in entry.items()}, nested_keys
+        )
+        for entry in data
+        if isinstance(entry, dict)
     ]
 
     # Create Polars DataFrame
@@ -71,7 +74,9 @@ def prepare_dataframe(data, columns_mapping, nested_keys=None, timestamp_col=Non
 
     # Convert timestamp column to datetime
     if timestamp_col in df.columns:
-        df = df.with_columns(pl.col(timestamp_col).str.strptime(pl.Datetime, "%Y-%m-%dT%H:%MZ"))
+        df = df.with_columns(
+            pl.col(timestamp_col).str.strptime(pl.Datetime, "%Y-%m-%dT%H:%MZ")
+        )
 
     return df
 
@@ -101,10 +106,9 @@ def plot_data(df, x_col, y_col, title, x_label, y_label, kind="line", color="blu
     # Plot using Matplotlib
     plt.figure(figsize=(10, 5))
     if kind == "line":
-        plt.plot(df[x_col], df[y_col], marker='o', linestyle='-', color=color)
+        plt.plot(df[x_col], df[y_col], marker="o", linestyle="-", color=color)
     elif kind == "bar":
         plt.bar(df[x_col], df[y_col], color=color)
-
 
     plt.title(title)
     plt.xlabel(x_label)
@@ -114,6 +118,7 @@ def plot_data(df, x_col, y_col, title, x_label, y_label, kind="line", color="blu
     plt.tight_layout()
     plt.show()
 
+
 # Function to fetch and plot data based on user selection
 def main():
     """
@@ -121,7 +126,7 @@ def main():
 
     This function fetches current space weather data, including solar flares and geomagnetic storms,
     prepares the data into Polars DataFrames, and plots the data using Matplotlib.
-    
+
     Args:
         None
 
@@ -142,7 +147,9 @@ def main():
     geomagnetic_storms = fetch_data("GST", storm_params)
     storm_columns = {"startTime": "time"}
     storm_nested_col = {"allKpIndex": {"observedTime": "time", "kpIndex": "kp_index"}}
-    geomagnetic_storms_df = prepare_dataframe(geomagnetic_storms, storm_columns, storm_nested_col, "time")
+    geomagnetic_storms_df = prepare_dataframe(
+        geomagnetic_storms, storm_columns, storm_nested_col, "time"
+    )
 
     # Fetch and prepare solar wind data
     wind_params = {"startDate": "2024-11-22", "endDate": "2024-11-23"}
@@ -160,11 +167,38 @@ def main():
 
         choice = input("Enter your choice (1-4): ")
         if choice == "1":
-            plot_data(solar_flares_df, "time", "intensity", "Solar Flares", "Time", "Intensity", kind="bar", color="orange")
+            plot_data(
+                solar_flares_df,
+                "time",
+                "intensity",
+                "Solar Flares",
+                "Time",
+                "Intensity",
+                kind="bar",
+                color="orange",
+            )
         elif choice == "2":
-            plot_data(geomagnetic_storms_df, "time", "kp_index", "Geomagnetic Storms", "Start Time", "KP Index", kind="line", color="blue")
+            plot_data(
+                geomagnetic_storms_df,
+                "time",
+                "kp_index",
+                "Geomagnetic Storms",
+                "Start Time",
+                "KP Index",
+                kind="line",
+                color="blue",
+            )
         elif choice == "3":
-            plot_data(solar_wind_df, "time", "speed", "Solar Wind Speeds", "Time", "Speed (km/s)", kind="line", color="green")
+            plot_data(
+                solar_wind_df,
+                "time",
+                "speed",
+                "Solar Wind Speeds",
+                "Time",
+                "Speed (km/s)",
+                kind="line",
+                color="green",
+            )
         elif choice == "4":
             print("Exiting the program. Goodbye!")
             break

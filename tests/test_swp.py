@@ -11,7 +11,12 @@ The tests use the pytest framework and mock external dependencies such as the re
 """
 from unittest import mock
 import polars as pl
-from src.space_weather_plotter.space_weather import fetch_data, prepare_dataframe, plot_data, main
+from src.space_weather_plotter.space_weather import (
+    fetch_data,
+    prepare_dataframe,
+    plot_data,
+    main,
+)
 
 
 # Mock requests.get
@@ -31,6 +36,7 @@ def test_fetch_data_success(mock_get):
     result = fetch_data("FLR", {"startDate": "2024-01-01", "endDate": "2024-11-23"})
     assert result == {"key": "value"}
 
+
 @mock.patch("src.space_weather_plotter.space_weather.requests.get")
 def test_fetch_data_failure(mock_get):
     """
@@ -47,6 +53,7 @@ def test_fetch_data_failure(mock_get):
     result = fetch_data("FLR", {"startDate": "2024-01-01", "endDate": "2024-11-23"})
     assert result is None
 
+
 def test_prepare_dataframe_valid_data():
     """
     Test prepare_dataframe function with valid data.
@@ -60,6 +67,7 @@ def test_prepare_dataframe_valid_data():
     assert not df.is_empty()
     assert df.columns == ["time", "intensity"]
 
+
 def test_prepare_dataframe_empty_data():
     """
     Test prepare_dataframe function with empty data.
@@ -72,6 +80,7 @@ def test_prepare_dataframe_empty_data():
     df = prepare_dataframe(data, columns_mapping)
     assert df.is_empty()
 
+
 @mock.patch("src.space_weather_plotter.space_weather.plt.show")
 def test_plot_data_valid_df(mock_show):
     """
@@ -83,8 +92,18 @@ def test_plot_data_valid_df(mock_show):
     data = [{"time": "2024-01-01T00:00Z", "intensity": "M1"}]
     columns_mapping = {"beginTime": "time", "classType": "intensity"}
     df = prepare_dataframe(data, columns_mapping, timestamp_col="time")
-    plot_data(df, "time", "intensity", "Solar Flares", "Time", "Intensity", kind="bar", color="orange")
+    plot_data(
+        df,
+        "time",
+        "intensity",
+        "Solar Flares",
+        "Time",
+        "Intensity",
+        kind="bar",
+        color="orange",
+    )
     mock_show.assert_called_once()
+
 
 @mock.patch("src.space_weather_plotter.space_weather.plt.show")
 def test_plot_data_empty_df(mock_show):
@@ -94,8 +113,18 @@ def test_plot_data_empty_df(mock_show):
     This test verifies that the plot_data function handles an empty Polars DataFrame without raising any exceptions.
     """
     df = pl.DataFrame()
-    plot_data(df, "time", "intensity", "Solar Flares", "Time", "Intensity", kind="bar", color="orange")
+    plot_data(
+        df,
+        "time",
+        "intensity",
+        "Solar Flares",
+        "Time",
+        "Intensity",
+        kind="bar",
+        color="orange",
+    )
     mock_show.assert_not_called()
+
 
 @mock.patch("builtins.input", side_effect=["1", "4"])
 @mock.patch("src.space_weather_plotter.space_weather.fetch_data")
@@ -107,6 +136,8 @@ def test_main(mock_plot_data, mock_fetch_data, mock_input):
     This test mocks the fetch_data, prepare_dataframe, and plot_data functions to verify that the main function
     orchestrates the fetching, preparing, and plotting of data correctly.
     """
-    mock_fetch_data.return_value = [{"beginTime": "2024-01-01T00:00Z", "classType": "M1"}]
+    mock_fetch_data.return_value = [
+        {"beginTime": "2024-01-01T00:00Z", "classType": "M1"}
+    ]
     main()
     assert mock_plot_data.called

@@ -4,13 +4,14 @@ This module fetches and visualizes space weather data from the NASA API.
 It includes functions to fetch data from the NASA API, prepare the data into Polars DataFrames,
 and plot the data using Matplotlib.
 """
-import requests #type: ignore
+import requests  # type: ignore
 import matplotlib.pyplot as plt
 import polars as pl
 
 # Define constants
 BASE_URL = "https://api.nasa.gov/DONKI/"
 API_KEY = "DEMO_KEY"  # Replace with your NASA API key
+
 
 # Function to fetch data from NASA API
 def fetch_data(endpoint, params):
@@ -24,13 +25,14 @@ def fetch_data(endpoint, params):
     Returns:
         dict or None: The JSON response from the API if the request is successful, otherwise None.
     """
-    params['api_key'] = API_KEY
-    response = requests.get(BASE_URL + endpoint, params = params, timeout = 10000)
+    params["api_key"] = API_KEY
+    response = requests.get(BASE_URL + endpoint, params=params, timeout=10000)
     if response.status_code == 200:
         return response.json()
     else:
         print(f"Error: {response.status_code} - {response.text}")
         return None
+
 
 # Function to prepare a Polars DataFrame
 def prepare_dataframe(data, columns_mapping, nested_keys=None, timestamp_col=None):
@@ -206,5 +208,5 @@ def main():
             print("Invalid choice. Please try again.")
 
 
-if __name__ == "__main__":
+if __name__ == "main":
     main()

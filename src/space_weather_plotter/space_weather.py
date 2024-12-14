@@ -12,7 +12,7 @@ from polars.exceptions import InvalidOperationError
 
 # Define constants
 BASE_URL = "https://api.nasa.gov/DONKI/"
-API_KEY = "gSCtK7lofcFpG45Luv5rYD8hG2JlMKVbsCp22QbM"  # Replace with your NASA API key
+API_KEY = "DEMO_KEY"  # Replace with your NASA API key
 
 
 # Function to fetch data from NASA API
@@ -223,7 +223,7 @@ def main():
                 geomagnetic_storms_df,
                 "time",
                 "kp_index",
-                "Geomagnetic Storms since 2010",
+                "Geomagnetic Storms power since 2010",
                 "Start Time",
                 "KP Index",
                 kind="line_dot",

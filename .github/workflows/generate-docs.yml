@@ -52,12 +52,17 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat $GITHUB_STEP_SUMMARY
           exit $TEST_EXIT_CODE
-      
+
+      - name: Print environment variables
+        run: env
+
       - name: Upload coverage to Coveralls
         uses: coverallsapp/github-action@v2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          coveralls-token: ${{ secrets.COVERALLS_REPO_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}  # GitHub token for repo access
+          coveralls-token: ${{ secrets.COVERALLS_REPO_TOKEN }}  # Custom Coveralls token
+          coveralls-endpoint: https://coveralls.io  # Use the default Coveralls endpoint
+          debug: true  # Enable debug mode
 
   build-and-deploy-docs:
     needs: build-and-test

@@ -53,7 +53,16 @@ jobs:
           cat $GITHUB_STEP_SUMMARY
           exit $TEST_EXIT_CODE
 
+      - name: Verify coveralls installation
+        run: |
+          source ~/.bashrc
+          conda activate ci_env
+          pip show coveralls
+
       - name: Upload coverage to Coveralls
-        run: coveralls --service=github-actions
+        run: |
+          source ~/.bashrc
+          conda activate ci_env  # Ensure the correct environment is activated before running coveralls
+          coveralls --service=github-actions
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}

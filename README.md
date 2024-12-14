@@ -2,14 +2,14 @@
 
 # Python Space Weather Plotter 
 
-A small python project to acquire data from the NASA DONKI API about this year space weather events and plot them. Please find here the [documentation](https://olazykute.github.io/Space_Weather_Plotter/)
+A small python project to acquire data from the NASA DONKI API about this year space weather events and plot them. 
+Please find here the [documentation](https://olazykute.github.io/Space_Weather_Plotter/)
 
 ## Project install
 In a folder opend a cmd prompt and type :
 ```
 git clone https://github.com/Olazykute/Space_Weather_Plotter.git
 ```
-
 After the install move to the project directory :
 ```
 cd .\Space_Weather_Plotter\

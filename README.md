@@ -1,4 +1,5 @@
 ![Test status](https://github.com/Olazykute/Space_Weather_Plotter/actions/workflows/generate-docs.yml/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/Olazykute/Space_Weather_Plotter/badge.svg?branch=main)](https://coveralls.io/github/Olazykute/Space_Weather_Plotter?branch=main)
 
 # Python Space Weather Plotter 
 

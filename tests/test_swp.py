@@ -10,10 +10,12 @@ This module contains tests for the functions in the space_weather module, includ
 The tests use the pytest framework and mock external dependencies such as the requests library.
 """
 from unittest import mock
+import pytest
 import polars as pl
 from src.space_weather_plotter.space_weather import (
     fetch_data,
     prepare_dataframe,
+    resample_data,
     plot_data,
     main,
 )
@@ -124,6 +126,58 @@ def test_plot_data_empty_df(mock_show):
         color="orange",
     )
     mock_show.assert_not_called()
+
+
+def test_resample_data_valid_frequency():
+    """
+    Test resample_data function with a valid frequency.
+
+    This test verifies that the resample_data function correctly resamples the data when provided with a valid frequency.
+    """
+    data = {
+        "time": [
+            "2024-01-01T00:00Z",
+            "2024-01-01T01:00Z",
+            "2024-01-01T02:00Z",
+            "2024-01-02T00:00Z",
+        ],
+        "intensity": [1, 2, 3, 4],
+    }
+    df = pl.DataFrame(data)
+    resampled_df = resample_data(df, "time", "1d")
+    assert resampled_df.shape[0] == 2  # Expecting 2 days of data
+
+
+def test_resample_data_invalid_frequency():
+    """
+    Test resample_data function with an invalid frequency.
+
+    This test verifies that the resample_data function raises a ValueError when provided with an invalid frequency.
+    """
+    data = {
+        "time": [
+            "2024-01-01T00:00Z",
+            "2024-01-01T01:00Z",
+            "2024-01-01T02:00Z",
+            "2024-01-02T00:00Z",
+        ],
+        "intensity": [1, 2, 3, 4],
+    }
+    df = pl.DataFrame(data)
+    with pytest.raises(ValueError, match="invalid frequency"):
+        resample_data(df, "time", "invalid_frequency")
+
+
+def test_resample_data_empty_df():
+    """
+    Test resample_data function with an empty DataFrame.
+
+    This test verifies that the resample_data function handles an empty DataFrame correctly.
+    """
+    data = {"time": [], "intensity": []}
+    df = pl.DataFrame(data)
+    with pytest.raises(ValueError, match="empty dataframe"):
+        resample_data(df, "time", "1d")
 
 
 @mock.patch("builtins.input", side_effect=["1", "4"])
